@@ -2,6 +2,7 @@ package com.spring.sTiles.controller;
 
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -57,13 +58,21 @@ public class TilesController {
 	}
 	
 	@RequestMapping(value = "/aria", method = RequestMethod.POST)
-	public String posteAria(String pwd, Model model) throws InvalidKeyException, UnsupportedEncodingException {
-		String encPwd = ARIAUtil.ariaEncrypt(pwd);
-		 
-		System.out.println("원본 비번 : ");
+	public String postAria(String pwd, Model model) throws InvalidKeyException, UnsupportedEncodingException {
+		UUID uid = UUID.randomUUID();
+		String salt = uid.toString().substring(0,8);
+		
+		String encPwd = ARIAUtil.ariaEncrypt(salt + pwd);
+		String decPwd = ARIAUtil.ariaDecrypt(encPwd);
+		decPwd = decPwd.substring(8);
+		
+		System.out.println("원본비번 : " + pwd + " , 암호화된 비번 : " + encPwd + " , 복호화된 비번 : " + decPwd);
+		
+		model.addAttribute("pwd", pwd);
+		model.addAttribute("encPwd", encPwd);
+		model.addAttribute("decPwd", decPwd);
 		
 		return "password/aria";
 	}
-	
 
 }
